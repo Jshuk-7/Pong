@@ -1,10 +1,7 @@
 #include "raylib.h"
-#include <iostream>
-#include <stdlib.h>
 
 namespace Raylib::PongGame
 {
-
     namespace Objects
     {
         enum Side
@@ -22,7 +19,7 @@ namespace Raylib::PongGame
 
         struct Window
         {
-            const char *title;
+            const char *TITLE;
             int width, height;
         };
 
@@ -32,12 +29,11 @@ namespace Raylib::PongGame
             Vector2 pos;
             Side side;
 
-            Rectangle ToRect()
-            {
-                return Rectangle{this->pos.x - this->width / 2, this->pos.y - this->height / 2, this->width, this->height};
-            }
+            Rectangle ToRect() { return Rectangle{
+                this->pos.x - this->width / 2, this->pos.y - this->height / 2,
+                this->width, this->height}; }
 
-            void GetInput()
+            void ProcessInput()
             {
                 if (this->side == Side::Left)
                 {
@@ -45,17 +41,13 @@ namespace Raylib::PongGame
                     {
                         this->pos.y -= this->vel * GetFrameTime();
                         if (this->pos.y < 0)
-                        {
                             this->pos.y = 0;
-                        }
                     }
                     else if (IsKeyDown(KEY_S))
                     {
                         this->pos.y += this->vel * GetFrameTime();
                         if (this->pos.y > GetScreenHeight())
-                        {
                             this->pos.y = GetScreenHeight();
-                        }
                     }
                 }
                 else if (this->side == Side::Right)
@@ -64,17 +56,13 @@ namespace Raylib::PongGame
                     {
                         this->pos.y -= this->vel * GetFrameTime();
                         if (this->pos.y < 0)
-                        {
                             this->pos.y = 0;
-                        }
                     }
                     else if (IsKeyDown(KEY_DOWN))
                     {
                         this->pos.y += this->vel * GetFrameTime();
                         if (this->pos.y > GetScreenHeight())
-                        {
                             this->pos.y = GetScreenHeight();
-                        }
                     }
                 }
             }
@@ -115,16 +103,12 @@ namespace Raylib::PongGame
                 if (CheckCollisionCircleRec(center, ball.radius, leftPaddle.ToRect()))
                 {
                     if (*velX < 0)
-                    {
                         *velX *= -1;
-                    }
                 }
                 if (CheckCollisionCircleRec(center, ball.radius, rightPaddle.ToRect()))
                 {
                     if (*velX > 0)
-                    {
                         *velX *= -1;
-                    }
                 }
             }
 
@@ -140,13 +124,11 @@ namespace Raylib::PongGame
                     *gameOver = true;
                     return Winner::RightPaddle;
                 }
-                return Winner::Undefined;
+                else
+                    return Winner::Undefined;
             }
 
-            void Draw()
-            {
-                DrawCircle(this->pos.x, this->pos.y, this->radius, WHITE);
-            }
+            void Draw() { DrawCircle(this->pos.x, this->pos.y, this->radius, WHITE); }
         };
     } // namespace Objects
 
@@ -155,10 +137,7 @@ namespace Raylib::PongGame
         DrawText(TEXT, (GetScreenWidth() / 2) / 1.45, GetScreenHeight() / 2 - 20, 25, BLACK);
     }
 
-    void PrintToViewportAtPos(const char *TEXT, Vector2 pos)
-    {
-        DrawText(TEXT, pos.x, pos.y, 20, BLACK);
-    }
+    void PrintToViewportAtPos(const char *TEXT, Vector2 pos) { DrawText(TEXT, pos.x, pos.y, 20, BLACK); }
 
     void ResetBall(float startVelX, float startVelY, float *ballVelX, float *ballVelY, float *ballX, float *ballY)
     {
@@ -168,10 +147,7 @@ namespace Raylib::PongGame
         *ballY = GetScreenHeight() / 2;
     }
 
-    void ResetPaddle(float *paddleY)
-    {
-        *paddleY = GetScreenHeight() / 2;
-    }
+    void ResetPaddle(float *paddleY) { *paddleY = GetScreenHeight() / 2; }
 
     void RestartGame(bool *gameOver, Objects::Winner *winner)
     {
@@ -197,7 +173,7 @@ namespace Raylib::PongGame
 
         //* Viewport settings
         Window window;
-        window.title = "Pong Game";
+        window.TITLE = "Pong Game";
         window.width = 640;
         window.height = 360;
 
@@ -236,7 +212,7 @@ namespace Raylib::PongGame
         const int fpsPos{10};
 
         //* Instance window
-        InitWindow(window.width, window.height, window.title);
+        InitWindow(window.width, window.height, window.TITLE);
         InitAudioDevice();
         SetWindowState(FLAG_VSYNC_HINT);
 
@@ -268,14 +244,14 @@ namespace Raylib::PongGame
                     winner = Ball::CheckForWin(ball.pos, &gameOver);
 
                     leftPaddle.Draw();
-                    leftPaddle.GetInput();
+                    leftPaddle.ProcessInput();
 
                     rightPaddle.Draw();
-                    rightPaddle.GetInput();
+                    rightPaddle.ProcessInput();
 
-                    DrawFPS(fpsPos, fpsPos);
+                    DrawFPS(fpsPos, fpsPos); // FPS text
                 }
-                else
+                else if (gameOver)
                 {
                     if (winner == Winner::LeftPaddle)
                     {
